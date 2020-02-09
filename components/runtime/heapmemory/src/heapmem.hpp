@@ -1,19 +1,36 @@
 #ifndef HEAPMEM_H_
 #define HEAPMEM_H_
 
-
 #include <stddef.h>
+#include <cstring>
+
+
 #include "heapmem.hpp"
 
-class Heap {
-    public:
-    Heap(size_t size);
+class HeapMemoryManager
+{
+  public:
+    HeapMemoryManager(size_t size);
 
-    // TODO remove me later
+    // Copy constructor
+    HeapMemoryManager(const HeapMemoryManager &p);
+
+    // Move constructor
+    HeapMemoryManager(HeapMemoryManager &&arr);
+
+    // Copy assignment
+    HeapMemoryManager &operator=(const HeapMemoryManager &other);
+
+    // Move assignment
+    HeapMemoryManager &operator=(HeapMemoryManager &&arr);
+
+    ~HeapMemoryManager();
+
     size_t GetSize();
 
-    private:
+  private:
     size_t m_size;
+    char *m_memory_buffer;
 };
 
 #endif
