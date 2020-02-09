@@ -4,33 +4,31 @@
 #include <stddef.h>
 #include <cstring>
 
-
 #include "heapmem.hpp"
 
-class HeapMemoryManager
-{
-  public:
-    HeapMemoryManager(size_t size);
+class HeapMemoryManager {
+ public:
+  HeapMemoryManager(size_t size);
 
-    // Copy constructor
-    HeapMemoryManager(const HeapMemoryManager &p);
+  // Copy constructor
+  HeapMemoryManager(const HeapMemoryManager &p);
 
-    // Move constructor
-    HeapMemoryManager(HeapMemoryManager &&arr);
+  // Move constructor
+  HeapMemoryManager(HeapMemoryManager &&arr);
 
-    // Copy assignment
-    HeapMemoryManager &operator=(const HeapMemoryManager &other);
+  // Copy assignment
+  HeapMemoryManager &operator=(const HeapMemoryManager &other);
 
-    // Move assignment
-    HeapMemoryManager &operator=(HeapMemoryManager &&arr);
+  // Move assignment
+  HeapMemoryManager &operator=(HeapMemoryManager &&arr);
 
-    ~HeapMemoryManager();
+  ~HeapMemoryManager();
 
-    size_t GetSize();
+  size_t GetSize();
 
-  private:
-    size_t m_size;
-    char *m_memory_buffer;
+ private:
+  size_t m_size;
+  char *m_memory_buffer;
 };
 
 #endif
