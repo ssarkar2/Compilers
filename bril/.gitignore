@@ -1,0 +1,10 @@
+build/
+book/
+venv/
+node_modules/
+yarn.lock
+.hypothesis/
+.pytest_cache/
+hypothesis_*
+__pycache__
+.vscode
