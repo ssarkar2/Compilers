@@ -43,12 +43,14 @@ To install them, you need [Flit][], so run this:
 
     $ pip install --user flit
 
+Or `conda install flit`
 Then, go to the `bril-txt` directory and use Flit to install symlinks to the tools:
 
     $ flit install --symlink --user
 
 The tools are called `bril2json` and `bril2txt`.
 They also take input on stdin and produce output on stdout.
+Try something like `bril2json < ../examples/test/dom/loopcond-front.bril`
 
 [flit]: https://flit.readthedocs.io/
 
