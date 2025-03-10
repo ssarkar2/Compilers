@@ -1,5 +1,5 @@
 # LLVM pattern matching
-Source code [here](https://llvm.org/doxygen/PatternMatch_8h_source.html)
+Source code [here](https://llvm.org/doxygen/PatternMatch_8h_source.html) in `PatternMatch.h`
 
 Here is a sample LLVM code matching  `(x && c1) || (y && c2)`
 
@@ -13,8 +13,6 @@ if (match(Exp, m_Or(m_And(m_Value(X), m_ConstantInt(C1)),
 ```
 
 
-
-
 ## Top match function
 Lets look at the outermost `match`. This is simply a call `pattern.match(value)`
 ```
@@ -23,13 +21,21 @@ template <typename Val, typename Pattern> bool match(Val *V, const Pattern &P) {
 }
 ```
 
-## What is a "Pattern"?
+## Patterns
 Any class that implements a `match` function. It can be basic classes or higher level combiner classes like `match_combine_or` (which checks if it matches atleast 1 of the 2 patterns). Because everyone implements `bool match(...)` any struct can recursively keep calling deeper matches till one of them returns a boolean
 
-Here is an example in full details
+### Single vs groups
+There are many functions beginnig with `m_` that return pattern matchers for certain ops (like `m_Or`) or patterns (eg `m_Signum`). There might be specific versions like `m_Shl`/`m_Shr` for shift-left or shift-right individually or a combined one like `m_Shift`.
 
-### Check if its an "Add" and capture its inputs
+### Predicated patterns
+Some patterns (like `m_Shift`) subclass from a `Predicate` class (like `is_shift_op`). Predicate classes implement `isOpType`
 
+
+
+## Deep Dive: Check if its an "Add" and capture its inputs
+
+
+### Caller code
 Consider the example:
 ```
 Value *X, *Y;
@@ -45,7 +51,7 @@ if (match(V, AddMatcher)) {
 }
 ```
 
-Relevant code from [PatternMatch.h](https://llvm.org/doxygen/PatternMatch_8h_source.html)
+### Relevant code from PatternMatch.h
 ```
 inline bind_ty<Value> m_Value(Value *&V) { return V; }
 
@@ -70,6 +76,7 @@ inline SpecificBinaryOp_match<LHS, RHS> m_BinOp(unsigned Opcode, const LHS &L,
 }
 ```
 
+### Walkthrough
 So we start at: `match(V, AddMatcher)` and gradually expand:
 
 `AddMatcher.match(V)`
