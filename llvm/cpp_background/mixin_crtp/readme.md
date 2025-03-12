@@ -32,9 +32,16 @@ However we if we had 2 "derived" classes we cannot store them in a vector of bas
 
 ```mermaid
 graph TD;
-    D1-->CRTP_B;
-    D2-->CRTP_B;
-    CRTP_B-->B;
+    CRTP_B_D1["`CRTP_B< D1 >`"]
+    CRTP_B_D2["`CRTP_B< D2 >`"]
+     subgraph CRTP_B
+     CRTP_B_D1
+     CRTP_B_D2
+     end
+    D1-->CRTP_B_D1;
+    D2-->CRTP_B_D2;
+    CRTP_B_D1-->B;
+    CRTP_B_D2-->B;
     
 ```
 
@@ -42,13 +49,25 @@ graph TD;
 
 We can have some templated Base classes that offer some (shareable) functionality/skills. See `crtp_functionality_extension.cpp` for 2 such skills: printing (`Print`) and Equality check (`Equal`). Two completely separate classes (`OneDPoint` and `KeyValuePair`) inherit both skills
 
-
+public Equal<OneDPoint>, public Print<OneDPoint>
 ```mermaid
 graph TD;
-    OneDPoint-->Print;
-    OneDPoint-->Equal;
-    KeyValuePair-->Print;
-    KeyValuePair-->Equal;
+    Print1d["`Print< OneDPoint >`"]
+    Printkv["`Print< KeyValuePair >`"]
+    Equal1d["`Equal< OneDPoint >`"]
+    Equalkv["`Equal< KeyValuePair >`"]
+    subgraph Print
+    Print1d
+    Printkv
+    end
+    subgraph Equal
+    Equal1d
+    Equalkv
+    end
+    OneDPoint-->Print1d;
+    OneDPoint-->Equal1d;
+    KeyValuePair-->Printkv;
+    KeyValuePair-->Equalkv;
     
 ```
 
@@ -61,8 +80,14 @@ A dual view of `crtp_functionality_extension.cpp` is presented in `mixin_functio
 
 ```mermaid
 graph TD;
-    Print-->OneDPoint;
-    Print-->KeyValuePair;
+    Print1d["`Print : OneDPoint `"]
+    Printkv["`Print : KeyValuePair `"]
+    subgraph Print
+    Print1d
+    Printkv
+    end
+    Print1d-->OneDPoint;
+    Printkv-->KeyValuePair;
 ```
 
 This method is meant to be used where we cannot make changes in the original class. Also note if the original class isnt meant for inheritance (non-virtual destructor), then we should not have cases where the derived class is deleted using a pointer to the original/base class
