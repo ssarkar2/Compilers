@@ -3,7 +3,7 @@
 
 ## Introduction and Theory
 Give a label "n" to each node in the program.
-$IN(n)$/$OUT(n)$ denotes a set of facts at the entry/exit of node $n$.
+$IN(n)$ / $OUT(n)$ denotes a set of facts at the entry/exit of node $n$.
 
 Data flow analysis computes $∀n, IN(n), OUT(n)$. It does so by applying 2 operations till $IN(n)$ and $OUT(n)$ stop changing (reaches saturation or fixed point)
 
@@ -21,6 +21,7 @@ n3 --OUT[n3]--> n
 ```
 
 $IN[n]$ is calculated as:
+
 $$
 IN[n] =\bigcup_{n^{'} \in pred(n)} OUT[n^{'}]
 $$
