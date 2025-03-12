@@ -27,11 +27,15 @@ IN[n] =\bigcup_{n^{'} \in pred(n)} OUT[n^{'}]
 $$
 
 $OUT[n]$ is calculated as:
+
+
 $$
 OUT[n] = (IN[n] - KILL[n]) \bigcup GEN[n]
 $$
 
 Or
+
+
 $$
 OUT[n] = Transfer_n(IN[n])\\
 IN[n] = Join_{n^{'} \in pred(n)}(OUT[n^{'} ])
@@ -102,19 +106,4 @@ Here is the 2x2 table. Some may not fit (requiring bidirectional analysis)
 With lattice
 
 
-## Dominance
-
-
-
-Inline equation: $a_i = b_i+c_i$
-
-Display equation: $$equation$$
-
-```mermaid
-flowchart LR
-    markdown["`This **is** _Markdown_`"]
-    newLines["`Line1
-    Line 2 ❤ ∩
-    Line 3`"]
-    markdown --> newLines
-```
+TBD examples of some data flow analyses
