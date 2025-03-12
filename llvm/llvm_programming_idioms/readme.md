@@ -1,10 +1,12 @@
 # Conventions and guidelines
-Some notes from [this](https://llvm.org/docs/ProgrammersManual.html)
+Some notes from [this](https://llvm.org/docs/ProgrammersManual.html). Most of these are bespoke solutions to things "normal" C++ does, but using templates so we have compile time computations/guarantees, so things are faster
 
 ## Table of Contents
 1. [Static polymorphism](#static-polymorphism)
 2. [RTTI](#RTTI)
 3. [Errors handling, exceptions and expected](#errors-handling,-exceptions-and-expected)
+4. [Degugging](#Debugging)
+5. [Data structures](##Data-structures)
 
 ## Static polymorphism
 LLVM uses a lot of CRTP to define base->derived relationships (rather than the usual subclassing)for faster execution. See this for some [background](../cpp_background/mixin_crtp/readme.md). In this document see the [recoverable error handling](#Recoverable) section for an example where CRTP is used to create subclasses
@@ -51,6 +53,8 @@ class Circle : public RTTIExtends<Circle, Shape>
 In the next section we will see how error handling does not use regular exceptions, because of similar performance reasons
 
 ## Errors handling, exceptions and expected
+Some highlights from [here](https://llvm.org/docs/ProgrammersManual.html#error-handling).
+
 LLVM has 2 categories of errors: programmatic and recoverable.
 
 ### Programmatic: assert + llvm_unreachable 
@@ -79,6 +83,7 @@ For example: missing file, malformed inputs etc. These errors need to propagate 
 3. Propagation:
     1. Errors can be converted to bool
     2. Errors cannot be dropped without checking for success. Even if it returns a success, we will get a runtime error. It can be moved up the stack for someone else to check.
+    3. Multiple errors can be joined into a list by `joinErrors`
 4. Handling: Use `handleErrors` or `handleAllErrors`. See code sample below
     1. `handleAllErrors` is expected to handle all errors, so it will abort if it cannot
     2. `handleErrors`: if it returns an `Error`, so its output must be checked.
@@ -146,6 +151,13 @@ Handling errors
 ### Last resort
 `report_fatal_error` calls installed error handlers, prints a message and aborts the program.
 
+For reporting errors to the user (errors which are not expected to be fixed) use `StringError`.
+```c++
+make_error<StringError>("Bad executable", errc::executable_format_error);
+createStringError(errc::executable_format_error, "Bad executable");
+// or inconvertibleErrorCode() if there is no errc error, or you know it will not be converted
+```
+
 ### Expected
 Similar to `std::expected<T,E>`. Implicitly converts to bool (true for success)
 
@@ -179,3 +191,95 @@ Error processFormattedFileAlternate(StringRef Path) {
   ...
 }
 ```
+
+
+## Debugging
+### Logs
+```c++
+LLVM_DEBUG(dbgs() << "I am here!\n");
+```
+
+Enabled with `-debug` option.
+
+For specific prints use `-debug-only`
+```c++
+#define DEBUG_TYPE "foo"
+LLVM_DEBUG(dbgs() << "'foo' debug type\n");
+#undef  DEBUG_TYPE
+DEBUG_WITH_TYPE("bar", dbgs() << "'bar' debug type\n");
+```
+
+```bash
+opt < a.bc > /dev/null -mypass -debug-only=foo
+```
+
+### Statistics
+
+```c++
+#define DEBUG_TYPE "mypassname"   // This goes after any #includes.
+STATISTIC(NumXForms, "The # of times I did stuff");
+```
+
+Increment the variable in code where we want to count something
+```
+++NumXForms;
+```
+
+### Run certain number of times
+```c++
+DEBUG_COUNTER(DeleteAnInstruction, "passname-delete-instruction",
+              "Controls which instructions get delete");
+...
+if (DebugCounter::shouldExecute(DeleteAnInstruction))
+  I->eraseFromParent();
+```
+
+```bash
+$ opt --debug-counter=passname-delete-instruction=2-3 -passname
+```
+
+This will skip the above code the first two times we hit it, then execute it 2 times, then skip the rest of the executions.
+
+### Graph views
+Functions such as:
+1. `Function::viewCFG()` (with instructions)
+2. `Function::viewCFGOnly()` (without instructions)
+3. `DAG.viewGraph()`
+
+
+
+
+## Data structures
+LLVM has its own set of [data structures](https://llvm.org/docs/ProgrammersManual.html#picking-the-right-data-structure-for-a-task) which might provide more efficient replacements for STL in some cases
+
+### Ref classes
+
+LLVM has some lightweight non-owning wrappers.
+
+#### StringRef / Twine
+Similar to `std::string_view`
+1. non owning
+2. non mutable
+3. efficient (eg prevent copies when moving around)
+
+StringRef has some extra functionalities over string_view, like case insensitive comparision, numeric comparisions, edit distance etc
+
+#### function_ref
+1. provides type erasure
+2. Non-owner
+3. Efficient (no copies)
+
+It is more lightweight that std::function.
+
+#### Arrays
+1. ArrayRef
+2. MutableArrayRef
+3. SmallVectorImpl
+
+
+### Small classes
+Such as `SmallString`, `SmallVector`, `SmallSet`, `SmallPtrSet`, `SmallBitVector` etc
+
+
+
+
