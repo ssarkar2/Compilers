@@ -41,13 +41,13 @@ $$
 
 | Statement | Gen | Kill | Comment
 | -------- | ------- | ------- | ------- |
-| `print(x)` | $\empty$ | $\empty$ | Thus $IN[n] == OUT[n]$
+| `print(x)` | $∅$ | $∅$ | Thus $IN[n] == OUT[n]$
 | `x = 5` | ${<x,n>}$ | ${<x,m>: m!=n}$ | Kill all definitions of `x` other than the one generated right now |
 
 
 ### Chaotic iteration Algorithm
 Initialization:
-Start with $\forall n, IN[n] = \empty, OUT[n] = \empty$.
+Start with $\forall n, IN[n] = ∅, OUT[n] = ∅$.
 Set output of entry node: $OUT[entry] = {<v, ?> : v\ is\ a\ program\ variable}$. This denotes we have so-and-so variables, but we know nothing about them.
 
 Iteration:
