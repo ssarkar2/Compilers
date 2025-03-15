@@ -2,6 +2,8 @@
 
 Here is an excellent [introduction](https://stackoverflow.com/questions/18773367/what-are-mixins-as-a-concept).
 
+A similar discussion of extending functionality is discussed in [visitor](../visitor/readme.md)
+
 
 ## Basic idea
 `CRTP` allows the base class to know who derived from it, so it can `static_cast` to the derived class and call its functions directly.
